@@ -13,7 +13,8 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
 
 const tokenSchema = new mongoose.Schema({
     token: String,
-    createdAt: { type: Date, expires: '24h', default: Date.now }
+    email: String,
+    createdAt: { type: Date, expires: '4h', default: Date.now }
 });
 
 const Token = mongoose.model('Token', tokenSchema);
@@ -21,23 +22,28 @@ const Token = mongoose.model('Token', tokenSchema);
 app.use(express.json());
 
 app.post('/generate-token', async (req, res) => {
-    const { receipt } = req.body;
-    if (validateReceipt(receipt)) {
-        const token = new Token({ token: generateToken() });
-        await token.save();
-        res.status(200).send({ token: token.token });
-    } else {
-        res.status(400).send({ error: 'Invalid receipt' });
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).send({ error: 'Email is required' });
     }
+
+    // Generate the token and store it in the database with the email
+    const token = new Token({ token: generateToken(), email });
+    await token.save();
+    res.status(200).send({ token: token.token });
 });
 
+
 app.get('/validate-token', async (req, res) => {
-    const { token } = req.query;
-    const Tokens = await Token.find();
-    const foundToken = Tokens.find((item) => item.token === token);
-    
-    //console.log(Tokens)
-    //console.log(foundToken)
+    const { token,email } = req.query;
+    if (!email || !token) {
+        return res.status(400).send({ valid: false, error: 'Token and email are required' });
+    }
+
+    // Find the token associated with the email
+    const foundToken = await Token.findOne({ token, email });
+
     if (foundToken) {
         res.status(200).send({ valid: true });
     } else {
