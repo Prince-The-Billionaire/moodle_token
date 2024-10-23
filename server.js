@@ -14,7 +14,7 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
 const tokenSchema = new mongoose.Schema({
     token: String,
     email: String,
-    createdAt: { type: Date, expires: '4h', default: Date.now }
+    createdAt: { type: Date, expires: '8h', default: Date.now }
 });
 
 const Token = mongoose.model('Token', tokenSchema);
