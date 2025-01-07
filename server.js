@@ -50,7 +50,7 @@ app.get('/validate-token', async (req, res) => {
     }
 
     // Find the token associated with the email
-    const foundToken = await Token.findOne({ token, email });
+    const foundToken = await Token.find({ token, email });
 
     if (foundToken) {
         res.status(200).send({ valid: true });
