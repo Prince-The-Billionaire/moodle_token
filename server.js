@@ -9,12 +9,20 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors())
 
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => {
+    console.log('Database connected');
+}).catch(err => {
+    console.error('Database connection error:', err);
+});
 
 const tokenSchema = new mongoose.Schema({
     token: String,
     email: String,
-    createdAt: { type: Date, expires: '4h', default: Date.now }
+    createdAt: { type: Date, expires: '14h', default: Date.now }
 });
 
 const Token = mongoose.model('Token', tokenSchema);
